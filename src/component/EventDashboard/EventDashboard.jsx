@@ -1,13 +1,14 @@
 import React from 'react';
-import NavBar from '../../component/NavBar/NavBar';
+
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { Box, Grid } from '@material-ui/core';
-import EventList from '../../component/EventList/EventList';
-const HomePage = () => {
+import EventList from '../EventList/EventList';
+
+const EventDashboard = () => {
 	return (
 		<React.Fragment>
 			<CssBaseline />
-			<NavBar />
+
 			<Box component='main'>
 				<Grid container>
 					<Grid item md={8}>
@@ -19,13 +20,11 @@ const HomePage = () => {
 							<EventList />
 						</Box>
 					</Grid>
-					<Grid item md={4}>
-						Right column
-					</Grid>
+					<Grid item md={4}></Grid>
 				</Grid>
 			</Box>
 		</React.Fragment>
 	);
 };
 
-export default HomePage;
+export default EventDashboard;
