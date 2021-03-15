@@ -3,24 +3,27 @@ import ReactDOM from 'react-dom';
 import 'semantic-ui-css/semantic.min.css';
 import './app/layout/styles.css';
 import App from './app/layout/App';
+import store from './app/store';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter } from 'react-router-dom';
-
+import { Provider } from 'react-redux';
 const rootEl = document.getElementById('root');
 
 function render() {
-  ReactDOM.render(
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>,
-    rootEl
-  );
+	ReactDOM.render(
+		<Provider store={store}>
+			<BrowserRouter>
+				<App />
+			</BrowserRouter>
+		</Provider>,
+		rootEl,
+	);
 }
 
 if (module.hot) {
-  module.hot.accept('./app/layout/App', function () {
-    setTimeout(render);
-  });
+	module.hot.accept('./app/layout/App', function () {
+		setTimeout(render);
+	});
 }
 
 render();
