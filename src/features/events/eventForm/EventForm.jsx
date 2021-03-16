@@ -1,9 +1,13 @@
 import React from 'react';
-import { Segment, Header, Form, Button } from 'semantic-ui-react';
+import { Segment, Header, Button } from 'semantic-ui-react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { Formik, Form } from 'formik';
+import cuid from 'cuid';
+import * as Yup from 'yup';
 import { update_event, add_event } from '../EventSlice';
+import MytextInput from '../../../../src/app/common/Form/MyTextInput';
 export default function EventForm({ match, history }) {
 	const {
 		params: { id },
@@ -19,90 +23,66 @@ export default function EventForm({ match, history }) {
 		venue: '',
 		date: '',
 	};
+	const validationSchema = Yup.object({
+		title: Yup.string().required('your must provide a title'),
+		category: Yup.string().required('your must provide a category'),
+		description: Yup.string().required(),
+		city: Yup.string().required(),
+		venue: Yup.string().required(),
+		date: Yup.string().required(),
+	});
 
-	const [values, setValues] = React.useState(initialValues);
-
-	const handleSubmit = () => {
-		id
-			? dispatch(update_event({ id, values }))
-			: dispatch(add_event({ values }));
-		history.push('/events');
-	};
-	function handleInputChange(e) {
-		const { name, value } = e.target;
-		setValues({ ...values, [name]: value });
-	}
+	// const handleSubmit = () => {
+	// 	id
+	// 		? dispatch(update_event({ id, values }))
+	// 		: dispatch(add_event({ values }));
+	// 	history.push('/events');
+	// };
+	// const [values, setValues] = React.useState(initialValues);
+	// function handleInputChange(e) {
+	// 	const { name, value } = e.target;
+	// 	setValues({ ...values, [name]: value });
+	// }
 
 	return (
 		<Segment clearing>
-			<Header content={id ? 'Edit the event' : 'Create new event'} />
-			<Form onSubmit={handleSubmit}>
-				<Form.Field>
-					<input
-						type='text'
-						placeholder='Event title'
-						name='title'
-						value={values.title}
-						onChange={(e) => handleInputChange(e)}
+			<Formik
+				initialValues={initialValues}
+				validationSchema={validationSchema}
+				onSubmit={(values) => {
+					id
+						? dispatch(update_event({ id, values }))
+						: dispatch(
+								add_event({
+									values,
+									id: cuid(),
+									hostedBy: Blob,
+									attendees: [],
+									hostPhotoURL: '',
+								}),
+						  );
+					history.push('/events');
+				}}>
+				<Form className='ui form'>
+					<Header content='event detail' color='teal' sub />
+					<MytextInput name='title' placeholder='title' />
+					<MytextInput name='category' placeholder='category' />
+					<MytextInput name='description' placeholder='description' />
+					<Header content='location detail' color='teal' sub />
+					<MytextInput name='city' placeholder='city' />
+					<MytextInput name='venue' placeholder='venue' />
+					<MytextInput name='date' type='date' placeholder='date' />
+
+					<Button type='submit' floated='right' positive content='Submit' />
+					<Button
+						as={Link}
+						to='/events'
+						type='submit'
+						floated='right'
+						content='Cancel'
 					/>
-				</Form.Field>
-				<Form.Field>
-					<input
-						type='text'
-						placeholder='Category'
-						name='category'
-						value={values.category}
-						onChange={(e) => handleInputChange(e)}
-					/>
-				</Form.Field>
-				<Form.Field>
-					<input
-						type='text'
-						placeholder='Description'
-						name='description'
-						value={values.description}
-						onChange={(e) => handleInputChange(e)}
-					/>
-				</Form.Field>
-				<Form.Field>
-					<input
-						type='text'
-						placeholder='City'
-						name='city'
-						value={values.city}
-						onChange={(e) => handleInputChange(e)}
-					/>
-				</Form.Field>
-				<Form.Field>
-					<input
-						type='text'
-						placeholder='Venue'
-						name='venue'
-						value={values.venue}
-						onChange={(e) => handleInputChange(e)}
-					/>
-				</Form.Field>
-				<Form.Field>
-					<input
-						type='date'
-						placeholder='Date'
-						name='date'
-						value={values.date}
-						onChange={(e) => handleInputChange(e)}
-					/>
-				</Form.Field>
-				<Button type='submit' floated='right' positive content='Submit' />
-				<Button
-					as={Link}
-					to='/events'
-					type='submit'
-					floated='right'
-					content='Cancel'
-					onClick={() => {
-						history.push(`/events/${id}`);
-					}}
-				/>
-			</Form>
+				</Form>
+			</Formik>
 		</Segment>
 	);
 }

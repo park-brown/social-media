@@ -8,7 +8,7 @@ const eventSlice = createSlice({
 	initialState: initialState,
 	reducers: {
 		add_event: (state, action) => {
-			state.push(action.payload.values);
+			state.push(action.payload);
 		},
 		update_event: (state, action) => {
 			const { id, values } = action.payload;
