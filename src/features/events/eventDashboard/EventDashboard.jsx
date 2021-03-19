@@ -2,23 +2,21 @@ import React from 'react';
 import { Grid } from 'semantic-ui-react';
 import EventList from './EventList';
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+
+import { fetchEvent } from '../EventSlice';
 
 export default function EventDashboard() {
 	// const [events, setEvents] = useState(sampleData);
-	const events = useSelector((state) => state.events);
+	const events = useSelector((state) => state.events.events);
+	const status = useSelector((state) => state.events.status);
+	const dispatch = useDispatch();
 
-	// function handleCreateEvent(event) {
-	//   setEvents([...events, event]);
-	// }
-
-	// function handleUpdateEvent(updatedEvent) {
-	//     setEvents(events.map(evt => evt.id === updatedEvent.id ? updatedEvent : evt));
-	// }
-
-	// function handleDeleteEvent(eventId) {
-	// 	setEvents(events.filter((evt) => evt.id !== eventId));
-	// }
+	React.useEffect(() => {
+		if (status === 'idle') {
+			dispatch(fetchEvent());
+		}
+	}, [dispatch, status]);
 
 	return (
 		<Grid>
