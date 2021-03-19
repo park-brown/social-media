@@ -8,6 +8,10 @@ import cuid from 'cuid';
 import * as Yup from 'yup';
 import { update_event, add_event } from '../EventSlice';
 import MytextInput from '../../../../src/app/common/Form/MyTextInput';
+import MytextArea from '../../../app/common/Form/MyTextArea';
+import MySelect from '../../../app/common/Form/MySelect';
+import { categoryData } from '../../../app/api/category';
+import MydatePicker from '../../../app/common/Form/MydatePicker';
 export default function EventForm({ match, history }) {
 	const {
 		params: { id },
@@ -54,7 +58,7 @@ export default function EventForm({ match, history }) {
 						? dispatch(update_event({ id, values }))
 						: dispatch(
 								add_event({
-									values,
+									...values,
 									id: cuid(),
 									hostedBy: Blob,
 									attendees: [],
@@ -63,25 +67,46 @@ export default function EventForm({ match, history }) {
 						  );
 					history.push('/events');
 				}}>
-				<Form className='ui form'>
-					<Header content='event detail' color='teal' sub />
-					<MytextInput name='title' placeholder='title' />
-					<MytextInput name='category' placeholder='category' />
-					<MytextInput name='description' placeholder='description' />
-					<Header content='location detail' color='teal' sub />
-					<MytextInput name='city' placeholder='city' />
-					<MytextInput name='venue' placeholder='venue' />
-					<MytextInput name='date' type='date' placeholder='date' />
+				{({ isSubmitting, dirty, isValid }) => (
+					<Form className='ui form'>
+						<Header content='event detail' color='teal' sub />
+						<MytextInput name='title' placeholder='title' />
+						<MySelect
+							name='category'
+							placeholder='category'
+							options={categoryData}
+						/>
+						<MytextArea name='description' placeholder='description' rows={3} />
+						<Header content='location detail' color='teal' sub />
+						<MytextInput name='city' placeholder='city' />
+						<MytextInput name='venue' placeholder='venue' />
+						<MydatePicker
+							name='date'
+							placeholderText='choose date'
+							timeFormat='HH:mm'
+							showTimeSelect
+							timeCaption='time'
+							dateFormat='MMMM d, yyyy h:mm:a'
+						/>
 
-					<Button type='submit' floated='right' positive content='Submit' />
-					<Button
-						as={Link}
-						to='/events'
-						type='submit'
-						floated='right'
-						content='Cancel'
-					/>
-				</Form>
+						<Button
+							type='submit'
+							floated='right'
+							positive
+							content='Submit'
+							loading={isSubmitting}
+							disabled={!isValid || !dirty || isSubmitting}
+						/>
+						<Button
+							disabled={isSubmitting}
+							as={Link}
+							to='/events'
+							type='submit'
+							floated='right'
+							content='Cancel'
+						/>
+					</Form>
+				)}
 			</Formik>
 		</Segment>
 	);
