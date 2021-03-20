@@ -4,13 +4,14 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Formik, Form } from 'formik';
-import cuid from 'cuid';
+
 import * as Yup from 'yup';
-import { update_event, add_event } from '../EventSlice';
+import { addEventToFirestore, updateEventInFirestore } from '../EventSlice';
 import MytextInput from '../../../../src/app/common/Form/MyTextInput';
 import MytextArea from '../../../app/common/Form/MyTextArea';
 import MySelect from '../../../app/common/Form/MySelect';
 import { categoryData } from '../../../app/api/category';
+
 import MydatePicker from '../../../app/common/Form/MydatePicker';
 export default function EventForm({ match, history }) {
 	const {
@@ -28,6 +29,7 @@ export default function EventForm({ match, history }) {
 		venue: '',
 		date: '',
 	};
+
 	const validationSchema = Yup.object({
 		title: Yup.string().required('your must provide a title'),
 		category: Yup.string().required('your must provide a category'),
@@ -37,35 +39,16 @@ export default function EventForm({ match, history }) {
 		date: Yup.string().required(),
 	});
 
-	// const handleSubmit = () => {
-	// 	id
-	// 		? dispatch(update_event({ id, values }))
-	// 		: dispatch(add_event({ values }));
-	// 	history.push('/events');
-	// };
-	// const [values, setValues] = React.useState(initialValues);
-	// function handleInputChange(e) {
-	// 	const { name, value } = e.target;
-	// 	setValues({ ...values, [name]: value });
-	// }
-
 	return (
 		<Segment clearing>
 			<Formik
 				initialValues={initialValues}
 				validationSchema={validationSchema}
-				onSubmit={(values) => {
+				onSubmit={(values, { setSubmitting }) => {
 					id
-						? dispatch(update_event({ id, values }))
-						: dispatch(
-								add_event({
-									...values,
-									id: cuid(),
-									hostedBy: Blob,
-									attendees: [],
-									hostPhotoURL: '',
-								}),
-						  );
+						? dispatch(updateEventInFirestore({ id, values }))
+						: dispatch(addEventToFirestore({ values }));
+					setSubmitting(false);
 					history.push('/events');
 				}}>
 				{({ isSubmitting, dirty, isValid }) => (

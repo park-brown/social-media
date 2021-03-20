@@ -39,7 +39,7 @@ export default function EventDetailedPage({ match }) {
 				</Grid.Column>
 			</Grid>
 		);
-	} else if (status === 'rejected') {
+	} else if (status === 'failed') {
 		content = <div> something went wrong </div>;
 	}
 	return <div>{content}</div>;

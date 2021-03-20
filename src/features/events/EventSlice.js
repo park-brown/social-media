@@ -1,10 +1,10 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, nanoid } from '@reduxjs/toolkit';
 import firebase from '../../app/api/config/firebase';
-import { sampleData } from '../../app/api/sampleData';
+
 const db = firebase.firestore();
 const initialState = {
 	status: 'idle',
-	events: [...sampleData],
+	events: [],
 	error: null,
 };
 export const fetchEvent = createAsyncThunk(
@@ -15,6 +15,7 @@ export const fetchEvent = createAsyncThunk(
 
 			const format_data = docs.map((doc, index) => {
 				const data = doc.data();
+
 				return {
 					...data,
 					date: data.date.toDate(),
@@ -35,13 +36,69 @@ export const fetchSingleEvent = createAsyncThunk(
 			const response = await db.collection('events').doc(id).get();
 
 			const data = response.data();
+
 			return {
 				...data,
 				id: response.id,
 				date: data.date.toDate(),
 			};
 		} catch (error) {
-			return rejectWithValue(error);
+			return rejectWithValue({ message: 'something went wrong' });
+		}
+	},
+);
+export const addEventToFirestore = createAsyncThunk(
+	'events/addEventTofirestore',
+	async ({ values }, { rejectWithValue }) => {
+		try {
+			const writeDoc = await db.collection('events').add({
+				...values,
+				hostedBy: 'Diana',
+				hostPhotoURL: 'https://randomuser.me/api/portraits/women/22.jpg',
+				attendees: firebase.firestore.FieldValue.arrayUnion({
+					id: nanoid(),
+					name: 'Diana',
+					photoURL: 'https://randomuser.me/api/portraits/women/22.jpg',
+				}),
+			});
+
+			const readDoc = await db.collection('events').doc(writeDoc.id).get();
+			const data = readDoc.data();
+			return {
+				...data,
+				date: data.date.toDate(),
+				id: readDoc.id,
+			};
+		} catch (error) {
+			rejectWithValue({ message: 'something went wrong' });
+		}
+	},
+);
+export const updateEventInFirestore = createAsyncThunk(
+	'events/updateEventInFirestore',
+	async ({ id, values }, { rejectWithValue }) => {
+		try {
+			await db.collection('events').doc(id).update(values);
+			const response = await db.collection('events').doc(id).get();
+			const data = response.data();
+			return {
+				...data,
+				date: data.date.toDate(),
+				id: response.id,
+			};
+		} catch (error) {
+			rejectWithValue({ message: 'something went wrong' });
+		}
+	},
+);
+export const deleteEventInFirestore = createAsyncThunk(
+	'events/deleteEventInFirestore',
+	async ({ id }, { rejectWithValue }) => {
+		try {
+			await db.collection('events').doc(id).delete();
+			return { id };
+		} catch (error) {
+			rejectWithValue(error.message);
 		}
 	},
 );
@@ -58,11 +115,9 @@ const eventSlice = createSlice({
 			const index = state.findIndex((e) => e.id === id);
 			state.events[index] = values;
 		},
-		// delete_event: (state, action) => {
-		// 	return state.events.filter((e) => e.id !== action.payload);
-		// },
 	},
 	extraReducers: {
+		//fetch all//
 		[fetchEvent.pending]: (state) => {
 			state.status = 'pending';
 		},
@@ -71,9 +126,11 @@ const eventSlice = createSlice({
 			state.events = [...state.events, ...action.payload];
 		},
 		[fetchEvent.rejected]: (state, action) => {
-			state.stats = 'failed';
-			state.error = action.payload;
+			state.status = 'failed';
+			state.error = action.error.message;
 		},
+
+		//fetch single doc//
 		[fetchSingleEvent.pending]: (state) => {
 			state.status = 'pending';
 		},
@@ -83,7 +140,47 @@ const eventSlice = createSlice({
 		},
 		[fetchSingleEvent.rejected]: (state, action) => {
 			state.status = 'failed';
-			state.error = action.payload;
+			state.error = action.error.message;
+		},
+		//update single doc
+		[updateEventInFirestore.pending]: (state) => {
+			state.status = 'pending';
+		},
+		[updateEventInFirestore.fulfilled]: (state, action) => {
+			state.status = 'fulfilled';
+			const { id } = action.payload;
+			const index = state.events.findIndex((event) => event.id === id);
+			state.events[index] = action.payload;
+		},
+		[updateEventInFirestore.rejected]: (state, action) => {
+			state.status = 'failed';
+			state.error = action.error.message;
+		},
+		//add new doc//
+		[addEventToFirestore.pending]: (state) => {
+			state.status = 'pending';
+		},
+		[addEventToFirestore.fulfilled]: (state, action) => {
+			state.status = 'fulfilled';
+			state.events.push(action.payload);
+		},
+		[addEventToFirestore.rejected]: (state, action) => {
+			state.status = 'failed';
+			state.error = action.error.message;
+		},
+		//delete single doc
+		[deleteEventInFirestore.pending]: (state) => {
+			state.status = 'pending';
+		},
+		[deleteEventInFirestore.fulfilled]: (state, action) => {
+			state.status = 'fulfilled';
+			const { id } = action.payload;
+			const index = state.events.find((e) => e.id === id);
+			state.events.splice(index, 1);
+		},
+		[deleteEventInFirestore.rejected]: (state, action) => {
+			state.status = 'failed';
+			state.error = action.error.message;
 		},
 	},
 });
