@@ -16,6 +16,9 @@ export default function SignedOutMenu() {
 				content='Login'
 			/>
 			<Button
+				onClick={() => {
+					dispatch(open_Modal({ modalType: 'Register' }));
+				}}
 				basic
 				inverted
 				content='Register'

@@ -5,29 +5,32 @@ import ModalWrapper from '../../app/common/Modals/ModalWrapper';
 import MytextInput from '../../app/common/Form/MyTextInput';
 import { Button, Divider, Label } from 'semantic-ui-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { user_sign_in_with_email_and_password } from './authSlice';
+import { user_sign_up_with_email_and_password } from './authSlice';
 import SocialLogin from './SocialLogin';
 
-const Login = () => {
+const Register = () => {
 	const dispatch = useDispatch();
 	const error = useSelector((state) => state.auth.error);
 	return (
-		<ModalWrapper size='mini' header='Sign in'>
+		<ModalWrapper size='mini' header='Sign up'>
 			<Formik
 				initialValues={{
+					name: '',
 					email: '',
 					password: '',
 				}}
 				validationSchema={Yup.object({
+					name: Yup.string().required(),
 					email: Yup.string().required().email(),
 					password: Yup.string().required(),
 				})}
 				onSubmit={(values, { setSubmitting }) => {
-					dispatch(user_sign_in_with_email_and_password({ values }));
+					dispatch(user_sign_up_with_email_and_password({ values }));
 					setSubmitting(false);
 				}}>
 				{({ isSubmitting, isValid, dirty }) => (
 					<Form className='ui form'>
+						<MytextInput name='name' placeholder='name' />
 						<MytextInput name='email' placeholder='email address' />
 						<MytextInput
 							name='password'
@@ -49,7 +52,7 @@ const Login = () => {
 							fluid
 							size='large'
 							color='teal'
-							content='login'
+							content='register'
 						/>
 						<Divider horizontal>Or</Divider>
 						<SocialLogin />
@@ -60,4 +63,4 @@ const Login = () => {
 	);
 };
 
-export default Login;
+export default Register;

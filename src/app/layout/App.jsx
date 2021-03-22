@@ -7,8 +7,23 @@ import HomePage from '../../features/home/HomePage';
 import EventDetailedPage from '../../features/events/eventDetailed/EventDetailedPage';
 import EventForm from '../../features/events/eventForm/EventForm';
 import ModalManager from '../common/Modals/ModalManager';
-
+import firebase from '../api/config/firebase';
+import { useDispatch } from 'react-redux';
+import { user_sign_in, user_sign_out } from '../../features/auth/authSlice';
 export default function App() {
+	const dispatch = useDispatch();
+	React.useEffect(() => {
+		const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+			if (user) {
+				dispatch(user_sign_in(user));
+			} else {
+				dispatch(user_sign_out());
+			}
+		});
+		return () => {
+			unsubscribe();
+		};
+	}, [dispatch]);
 	return (
 		<>
 			<ModalManager />
