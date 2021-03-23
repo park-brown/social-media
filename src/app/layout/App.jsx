@@ -10,6 +10,7 @@ import ModalManager from '../common/Modals/ModalManager';
 import firebase from '../api/config/firebase';
 import { useDispatch } from 'react-redux';
 import { user_sign_in, user_sign_out } from '../../features/auth/authSlice';
+import ProfilePage from '../../features/profile/ProfilePage';
 export default function App() {
 	const dispatch = useDispatch();
 	React.useEffect(() => {
@@ -35,6 +36,7 @@ export default function App() {
 						<NavBar />
 						<Container className='main'>
 							<Route exact path='/events' component={EventDashboard} />
+							<Route exact path='/profile/:id' component={ProfilePage} />
 							<Route path='/events/:id' component={EventDetailedPage} />
 							<Route
 								path={['/createEvent', '/manage/:id']}

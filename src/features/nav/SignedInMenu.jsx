@@ -5,7 +5,8 @@ import { user_signOut_firebase } from '../auth/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 export default function SignedInMenu() {
 	const dispatch = useDispatch();
-	const user_name = useSelector((state) => state.auth.current_user.displayName);
+	const current_user = useSelector((state) => state.auth.current_user);
+	const { uid, displayName } = current_user;
 	const handleSignOut = () => {
 		dispatch(user_signOut_firebase());
 		history.push('/');
@@ -15,7 +16,7 @@ export default function SignedInMenu() {
 	return (
 		<Menu.Item position='right'>
 			<Image avatar spaced='right' src='/assets/user.png' />
-			<Dropdown pointing='top left' text={`${user_name}`}>
+			<Dropdown pointing='top left' text={`${displayName}`}>
 				<Dropdown.Menu>
 					<Dropdown.Item
 						as={Link}
@@ -23,7 +24,12 @@ export default function SignedInMenu() {
 						text='Create Event'
 						icon='plus'
 					/>
-					<Dropdown.Item text='My profile' icon='user' />
+					<Dropdown.Item
+						as={Link}
+						to={`/profile/${uid}`}
+						text='My profile'
+						icon='user'
+					/>
 					<Dropdown.Item onClick={handleSignOut} text='Sign out' icon='power' />
 				</Dropdown.Menu>
 			</Dropdown>
