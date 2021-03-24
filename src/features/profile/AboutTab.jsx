@@ -11,7 +11,7 @@ export default function AboutTab({ profile }) {
 		(state) => state.profile.current_user_profile.uid,
 	);
 	const match = Boolean(current_user_id === profile_id);
-	console.log(match);
+
 	return (
 		<Tab.Pane>
 			<Grid>

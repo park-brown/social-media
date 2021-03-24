@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tab } from 'semantic-ui-react';
 import AboutTab from './AboutTab';
+import PhotosTab from './PhotosTab';
 
 const ProfileContent = ({ profile }) => {
 	const panes = [
@@ -8,7 +9,7 @@ const ProfileContent = ({ profile }) => {
 			menuItem: 'About',
 			render: () => <AboutTab profile={profile} />,
 		},
-		{ menuItem: 'Photos', render: () => <Tab.Pane>Photos</Tab.Pane> },
+		{ menuItem: 'Photos', render: () => <PhotosTab profile={profile} /> },
 		{ menuItem: 'Events', render: () => <Tab.Pane>Events</Tab.Pane> },
 		{ menuItem: 'Followers', render: () => <Tab.Pane>Followers</Tab.Pane> },
 		{ menuItem: 'Following', render: () => <Tab.Pane>Following</Tab.Pane> },

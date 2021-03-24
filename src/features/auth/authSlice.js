@@ -69,6 +69,7 @@ const authSlice = createSlice({
 		user_sign_in: (state, action) => {
 			state.authenticated = true;
 			const { email, uid, photoURL, displayName } = action.payload;
+
 			state.current_user = { email, uid, photoURL, displayName };
 		},
 		user_sign_out: (state, action) => {

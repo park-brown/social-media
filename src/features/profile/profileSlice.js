@@ -5,6 +5,7 @@ const db = firebase.firestore();
 const initialState = {
 	status: 'idle',
 	current_user_profile: [],
+	photos: [],
 	error: null,
 };
 
@@ -50,6 +51,40 @@ export const update_user_profile = createAsyncThunk(
 	},
 );
 
+export const get_user_photo = createAsyncThunk(
+	'profile/get_user_photo',
+	async ({ id }) => {
+		try {
+			const response = await db
+				.collection('user')
+				.doc(id)
+				.collection('photos')
+				.get();
+			const photos = response.docs.map((doc) => {
+				return {
+					...doc.data(),
+					id: doc.id,
+				};
+			});
+			return photos;
+		} catch (error) {}
+	},
+);
+
+export const delete_user_photo = createAsyncThunk(
+	'profile/delete_photo',
+	async ({ id }, { getState, dispatch }) => {
+		const {
+			auth: {
+				current_user: { uid },
+			},
+		} = getState();
+
+		await db.collection('user').doc(uid).collection('photos').doc(id).delete();
+		dispatch(get_user_photo({ id: uid }));
+	},
+);
+
 const profileSlice = createSlice({
 	name: 'profile',
 	initialState: initialState,
@@ -71,6 +106,17 @@ const profileSlice = createSlice({
 		[update_user_profile.fulfilled]: (state, action) => {
 			state.status = 'succeeded';
 			state.current_user_profile = action.payload;
+		},
+
+		[get_user_photo.fulfilled]: (state, action) => {
+			state.photos = action.payload;
+		},
+		[delete_user_photo.pending]: (state) => {
+			state.status = 'pending';
+		},
+		[delete_user_photo.fulfilled]: (state, action) => {
+			state.status = 'succeeded';
+			state.photos = action.payload;
 		},
 		// [update_user_profile.rejected]: (state, action) => {
 		// 	state.status = 'failed';

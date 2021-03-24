@@ -19,7 +19,7 @@ const ProfileHeader = ({ profile }) => {
 				<GridColumn width={12}>
 					<ItemGroup>
 						<Item>
-							<Item.Image avatar size='small' src='/assets/user.png' />
+							<Item.Image avatar size='small' src={profile.photoURL} />
 							<Item.Content verticalAlign='middle'>
 								<Header
 									as='h1'
