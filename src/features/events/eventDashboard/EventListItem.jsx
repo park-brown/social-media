@@ -30,10 +30,11 @@ export default function EventListItem({ event }) {
 			</Segment>
 			<Segment secondary>
 				<List horizontal>
-					{Boolean(event.attendee) ||
-						event.attendees.map((attendee) => (
-							<EventListAttendee key={attendee.name} attendee={attendee} />
-						))}
+					{event.attendees
+						? event.attendees.map((attendee) => (
+								<EventListAttendee key={attendee.name} attendee={attendee} />
+						  ))
+						: null}
 				</List>
 			</Segment>
 			<Segment clearing>

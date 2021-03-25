@@ -19,7 +19,7 @@ export default function EventForm({ match, history }) {
 	} = match;
 	const events = useSelector((state) => state.events.events);
 
-	const event = events.find((e) => e.id === id);
+	const event = events && events.find((e) => e.id === id);
 	const dispatch = useDispatch();
 	const initialValues = event ?? {
 		title: '',

@@ -16,12 +16,15 @@ export default function EventDetailedPage({ match }) {
 	const dispatch = useDispatch();
 	const status = useSelector((state) => state.events.status);
 	const events = useSelector((state) => state.events.events);
+	const { current_user } = useSelector((state) => state.auth);
+
 	const event = events.find((item) => item.id === id);
+
+	const isHost = event?.hostUid === current_user?.uid;
+	const isGoing = event?.attendees?.some((a) => a.id === current_user?.uid);
 	React.useEffect(() => {
-		if (status === 'idle') {
-			dispatch(fetchSingleEvent({ id }));
-		}
-	}, [dispatch, id, status]);
+		dispatch(fetchSingleEvent({ id }));
+	}, [dispatch, id]);
 
 	let content;
 	if (status === 'pending') {
@@ -30,12 +33,17 @@ export default function EventDetailedPage({ match }) {
 		content = (
 			<Grid>
 				<Grid.Column width={10}>
-					<EventDetailedHeader id={id} event={event} />
+					<EventDetailedHeader
+						id={id}
+						event={event}
+						isGoing={isGoing}
+						isHost={isHost}
+					/>
 					<EventDetailedInfo event={event} />
 					<EventDetailedChat />
 				</Grid.Column>
 				<Grid.Column width={6}>
-					<EventDetailedSidebar event={event} />
+					<EventDetailedSidebar event={event} hostUid={event.hostUid} />
 				</Grid.Column>
 			</Grid>
 		);

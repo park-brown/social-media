@@ -1,7 +1,9 @@
 import React from 'react';
 import { Segment, Image, Item, Header, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { format } from 'date-fns';
+import { user_cancel_event, user_join_event } from '../EventSlice';
 const eventImageStyle = {
 	filter: 'brightness(30%)',
 };
@@ -15,7 +17,14 @@ const eventImageTextStyle = {
 	color: 'white',
 };
 
-export default function EventDetailedHeader({ id, event }) {
+export default function EventDetailedHeader({ id, event, isHost, isGoing }) {
+	const dispatch = useDispatch();
+	const join_this_event = () => {
+		dispatch(user_join_event({ event }));
+	};
+	const cancel_event = () => {
+		dispatch(user_cancel_event({ event }));
+	};
 	return (
 		<Segment.Group>
 			<Segment basic attached='top' style={{ padding: '0' }}>
@@ -36,7 +45,12 @@ export default function EventDetailedHeader({ id, event }) {
 								/>
 								<p>{format(event.date, 'MMMM d, yyyy h:mm a')}</p>
 								<p>
-									Hosted by <strong>{event.hostedBy}</strong>
+									Hosted by{' '}
+									<strong>
+										<Link to={`/profile/${event.hostUid}`}>
+											{event.hostedBy}
+										</Link>
+									</strong>
 								</p>
 							</Item.Content>
 						</Item>
@@ -44,13 +58,24 @@ export default function EventDetailedHeader({ id, event }) {
 				</Segment>
 			</Segment>
 
-			<Segment attached='bottom'>
-				<Button>Cancel My Place</Button>
-				<Button color='teal'>JOIN THIS EVENT</Button>
+			<Segment attached='bottom' clearing>
+				{!isHost && (
+					<React.Fragment>
+						{isGoing ? (
+							<Button onClick={cancel_event}>Cancel My Place</Button>
+						) : (
+							<Button color='teal' onClick={join_this_event}>
+								JOIN THIS EVENT
+							</Button>
+						)}
+					</React.Fragment>
+				)}
 
-				<Button as={Link} to={`/manage/${id}`} color='orange' floated='right'>
-					Manage Event
-				</Button>
+				{isHost && (
+					<Button as={Link} to={`/manage/${id}`} color='orange' floated='right'>
+						Manage Event
+					</Button>
+				)}
 			</Segment>
 		</Segment.Group>
 	);
